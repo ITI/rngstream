@@ -1,15 +1,22 @@
 # RngStream
 
 
-[![Report Card](https://goreportcard.com/badge/github.com/illinoisrobert/rngstream)](https://goreportcard.com/report/github.com/illinoisrobert/rngstream)
+[![Report Card](https://goreportcard.com/badge/github.com/illinoisrobert/rngstream)](https://goreportcard.com/report/github.com/illinoisrobert/rngstream) 
+[![Go Reference](https://pkg.go.dev/badge/github.com/illinoisrobert/rngstream.svg)](https://pkg.go.dev/github.com/illinoisrobert/rngstream)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 
-
-Package rngStream is an object-oriented random-number package
+Package rngstream is an object-oriented random-number package
 with many long streams and substreams, based on the
 MRG32k3a RNG from reference [1] below and proposed in [2].
 
-It has implementations in C, C++, Go, Java, R, OpenCL, and some other
+It has implementations in
+[C](https://www-labs.iro.umontreal.ca/~lecuyer/myftp/streams00/c/),
+[C++](https://www-labs.iro.umontreal.ca/~lecuyer/myftp/streams00/c++/),
+Go,
+[Java](https://www.iro.umontreal.ca/~lecuyer/myftp/streams00/java/),
+[R](https://www.rdocumentation.org/packages/parallel/versions/3.6.2/topics/RNGstreams),
+OpenCL, and some other
 languages.  The main description and documentation is in the
 [c++ package](http://www.iro.umontreal.ca/~lecuyer/myftp/streams00/c++/),
 in the paper
@@ -43,4 +50,4 @@ Thank you.
 (The above text modified from http://www.iro.umontreal.ca/~lecuyer/myftp/streams00/readme.txt).
 
 This Go translation is copyright 2023 The Board of Trustees of the
-University of Illinois. All rights reserved.
+University of Illinois. See [LICENSE.md](LICENSE.md) for details.
