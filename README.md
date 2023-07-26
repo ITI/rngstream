@@ -1,6 +1,10 @@
 # RngStream
 
 
+[Report Card](https://goreportcard.com/badge/github.com/illinoisrobert/rngstream](https://goreportcard.com/report/github.com/illinoisrobert/rngstream)
+
+
+
 Package rngStream is an object-oriented random-number package
 with many long streams and substreams, based on the
 MRG32k3a RNG from reference [1] below and proposed in [2].
