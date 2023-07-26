@@ -1,3 +1,10 @@
+// The package is copyrighted by Pierre L'Ecuyer and the
+// University of Montreal.
+// Go translation Copyright 2023 University of Illinois Board of Trustees.
+// See LICENSE.md for details.
+// SPDX-License-Identifier: MIT
+
+
 // RngStreams is an object-oriented random-number package with many long
 // streams and substreams, based on the MRG32k3a RNG from reference [1]
 // below and proposed in [2].

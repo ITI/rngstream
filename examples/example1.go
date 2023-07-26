@@ -1,5 +1,9 @@
-/*  Program to test the random number streams file:    RngStream.c   */
-/* Build: `go build example1` */
+// The package is copyrighted by Pierre L'Ecuyer and the
+// University of Montreal.
+// Go translation Copyright 2023 University of Illinois Board of Trustees.
+// See LICENSE.md for details.
+// SPDX-License-Identifier: MIT
+
 package main
 
 import (
