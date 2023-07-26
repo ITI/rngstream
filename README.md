@@ -1,7 +1,7 @@
 # RngStream
 
 
-[Report Card](https://goreportcard.com/badge/github.com/illinoisrobert/rngstream](https://goreportcard.com/report/github.com/illinoisrobert/rngstream)
+[![Report Card](https://goreportcard.com/badge/github.com/illinoisrobert/rngstream)](https://goreportcard.com/report/github.com/illinoisrobert/rngstream)
 
 
 
