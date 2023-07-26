@@ -1,7 +1,7 @@
-# GoRngStreams
+# RngStream
 
 
-GoRngStreams is an object-oriented random-number package
+Package rngStream is an object-oriented random-number package
 with many long streams and substreams, based on the
 MRG32k3a RNG from reference [1] below and proposed in [2].
 
