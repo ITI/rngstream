@@ -27,7 +27,7 @@
 //
 // This Go translation is copyright 2023 The Board of Trustees of the
 // University of Illinois. All rights reserved.
-package gorngstreams
+package rngstream
 
 import (
     "fmt"
