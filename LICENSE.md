@@ -1,0 +1,25 @@
+From http://www.iro.umontreal.ca/~lecuyer/myftp/streams00/readme.txt
+
+	The package is copyrighted by Pierre L'Ecuyer and the University of
+	Montreal.  It can be used freely for any purpose.
+
+	e-mail:  lecuyer@iro.umontreal.ca
+	http://www.iro.umontreal.ca/~lecuyer/
+
+	If you use it for your research, please cite the following relevant
+	publications in which MRG32k3a and the package with multiple streams
+	were proposed:
+
+	[1] P. L'Ecuyer, ``Good Parameter Sets for Combined
+	Multiple Recursive Random Number Generators'',
+	Operations Research, 47, 1 (1999), 159--164.  See
+	https://www-labs.iro.umontreal.ca/~lecuyer/myftp/papers/opres-combmrg2-1999.pdf
+
+	[2] P. L'Ecuyer, R. Simard, E. J. Chen, and W. D. Kelton, ``An
+	Objected-Oriented Random-Number Package with Many Long Streams and
+	Substreams'', Operations Research, 50, 6 (2002), 1073--1075 See
+	https://www-labs.iro.umontreal.ca/~lecuyer/myftp/papers/streams00.pdf
+
+
+This Go translation is copyright 2023 by the Board of Trustees of the
+University of Illinois. All rights reserved. License to be determined.
