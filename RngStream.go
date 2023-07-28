@@ -1,9 +1,9 @@
+// SPDX-License-Identifier: MIT
+
 // The package is copyrighted by Pierre L'Ecuyer and the
 // University of Montreal.
 // Go translation Copyright 2023 University of Illinois Board of Trustees.
 // See LICENSE.md for details.
-// SPDX-License-Identifier: MIT
-
 
 // RngStreams is an object-oriented random-number package with many long
 // streams and substreams, based on the MRG32k3a RNG from reference [1]
@@ -43,30 +43,30 @@ import (
 )
 
 type RngStream struct {
-	cg, bg, ig [6]int64
+	cg, bg, ig [6]float64
 	anti       bool
 	incPrec    bool
 	name       string
 }
 
 const norm float64 = 2.328306549295727688e-10
-const m1 int64 = 4294967087
-const m2 int64 = 4294944443
-const a12 int64 = 1403580
-const a13n int64 = 810728
-const a21 int64 = 527612
-const a23n int64 = 1370589
+const m1 float64 = 4294967087
+const m2 float64 = 4294944443
+const a12 float64 = 1403580
+const a13n float64 = 810728
+const a21 float64 = 527612
+const a23n float64 = 1370589
 
-const two17 int64 = 131072
-const two53 int64 = 9007199254740992
+const two17 float64 = 131072
+const two53 float64 = 9007199254740992
 const fact float64 = 5.9604644775390625e-8 /* 1 / 2^24 */
 
 // Default initial seed of the package. Will be updated to become
 // the seed of the next created stream. */
-var nextSeedLow = [3]int64{12345, 23456, 34567}
-var nextSeedHigh = [3]int64{45678, 56789, 67890}
+var nextSeedLow = [3]float64{12345, 12345, 12345}
+var nextSeedHigh = [3]float64{12345, 12345, 12345}
 
-func SetRngStreamMasterSeed(seed int64) {
+func SetRngStreamMasterSeed(seed float64) {
 	nextSeedLow[0] = seed
 	nextSeedLow[1] = seed + 1
 	nextSeedLow[2] = seed + 2
@@ -79,73 +79,73 @@ func SetRngStreamMasterSeed(seed int64) {
 // (in matrix form), raised to the powers -1, 1, 2^76, and 2^127, resp.
 var (
 	// Inverse of a1p0
-	invA1 = [3][3]int64{
+	invA1 = [3][3]float64{
 		{184888585, 0, 1945170933},
 		{1, 0, 0},
 		{0, 1, 0}}
 
 	// Inverse of a2p0
-	invA2 = [3][3]int64{ //
+	invA2 = [3][3]float64{ //
 		{0, 360363334, 4225571728},
 		{1, 0, 0},
 		{0, 1, 0}}
 
 	// First MRG component raised to the power 1.
-	a1p0 = [3][3]int64{
+	a1p0 = [3][3]float64{
 		{0, 1, 0},
 		{0, 0, 1},
 		{-810728, 1403580, 0}}
 
 	// Second MRG component raised to the power 1.
-	a2p0 = [3][3]int64{
+	a2p0 = [3][3]float64{
 		{0, 1, 0},
 		{0, 0, 1},
 		{-1370589, 0, 527612}}
 
 	// First MRG component raised to the power 2^76
-	a1p76 = [3][3]int64{
+	a1p76 = [3][3]float64{
 		{82758667, 1871391091, 4127413238},
 		{3672831523, 69195019, 1871391091},
 		{3672091415, 3528743235, 69195019}}
 
 	// Second MRG component raised to the power 2^76
-	a2p76 = [3][3]int64{
+	a2p76 = [3][3]float64{
 		{1511326704, 3759209742, 1610795712},
 		{4292754251, 1511326704, 3889917532},
 		{3859662829, 4292754251, 3708466080}}
 
 	// First MRG component raised to the power 2^127
-	a1p127 = [3][3]int64{
+	a1p127 = [3][3]float64{
 		{2427906178, 3580155704, 949770784},
 		{226153695, 1230515664, 3580155704},
 		{1988835001, 986791581, 1230515664}}
 
 	// Second MRG component raised to the power 2^127
-	a2p127 = [3][3]int64{
+	a2p127 = [3][3]float64{
 		{1464411153, 277697599, 1610723613},
 		{32183930, 1464411153, 1022607788},
 		{2824425944, 32183930, 2093834863}}
 )
 
 // Compute (a*s + c) % m. m must be < 2^35.  Works also for s, c < 0
-func multModM(a, s, c, m int64) int64 {
-	var v int64
+func multModM(a, s, c, m float64) float64 {
+	var v float64
 	var a1 int64
 
 	v = a*s + c
 
 	if (v >= two53) || (v <= -two53) {
 		a1 := int64(a / two17)
-		a -= (a1 * two17)
-		v = a1 * s
+		a -= (float64(a1) * two17)
+		v = float64(a1) * s
 		a1 = int64(v / m)
-		v -= a1 * m
+		v -= float64(a1) * m
 		v = v*two17 + a*s + c
 	}
 	a1 = int64(v / m)
 
-	tv := v - a1*m
-	if tv < 0 {
+	v = v - float64(a1)*m
+	if v < 0 {
 		return v + m
 	} else {
 		return v
@@ -154,8 +154,8 @@ func multModM(a, s, c, m int64) int64 {
 
 // Returns v = A*s % m.  Assumes that -m < s[i] < m.
 // Works even if v = s.
-func matVecModM(A *[3][3]int64, s *[3]int64, v *[3]int64, m int64) {
-	var x [3]int64
+func matVecModM(A *[3][3]float64, s *[3]float64, v *[3]float64, m float64) {
+	var x [3]float64
 	for i := 0; i < 3; i++ {
 		x[i] = multModM((*A)[i][0], (*s)[0], 0, m)
 		x[i] = multModM((*A)[i][1], (*s)[1], x[i], m)
@@ -168,11 +168,11 @@ func matVecModM(A *[3][3]int64, s *[3]int64, v *[3]int64, m int64) {
 }
 
 /* Returns C = A*B % m. Work even if A = C or B = C or A = B = C. */
-func matMatModM(A *[3][3]int64, B *[3][3]int64, C *[3][3]int64, m int64) {
+func matMatModM(A *[3][3]float64, B *[3][3]float64, C *[3][3]float64, m float64) {
 	/* Returns C = A*B % m. Work even if A = C or B = C or A = B = C. */
-	var V = [3]int64{0, 0, 0}
+	var V = [3]float64{0, 0, 0}
 
-	var W = [3][3]int64{{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}
+	var W = [3][3]float64{{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}
 
 	for i := 0; i < 3; i++ {
 		for j := 0; j < 3; j++ {
@@ -191,7 +191,7 @@ func matMatModM(A *[3][3]int64, B *[3][3]int64, C *[3][3]int64, m int64) {
 }
 
 /* Compute matrix B = (A^(2^e) % m);  works even if A = B */
-func matTwoPowModM(A *[3][3]int64, B *[3][3]int64, m int64, e int) {
+func matTwoPowModM(A *[3][3]float64, B *[3][3]float64, m float64, e int64) {
 	/* initialize: B = A */
 	for i := 0; i < 3; i++ {
 		for j := 0; j < 3; j++ {
@@ -200,15 +200,15 @@ func matTwoPowModM(A *[3][3]int64, B *[3][3]int64, m int64, e int) {
 	}
 
 	/* Compute B = A^{2^e} */
-	for i := 0; i < e; i++ {
+	for i := 0; int64(i) < e; i++ {
 		matMatModM(B, B, B, m)
 	}
 }
 
 // Compute matrix B = A^n % m ;  works even if A = B
-func matPowModM(A *[3][3]int64, B *[3][3]int64, m int64, n int) {
+func matPowModM(A *[3][3]float64, B *[3][3]float64, m float64, n int64) {
 
-	var W = [3][3]int64{{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}
+	var W = [3][3]float64{{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}
 
 	/* initialize: W = A; B = I */
 	for i := 0; i < 3; i++ {
@@ -235,13 +235,13 @@ func matPowModM(A *[3][3]int64, B *[3][3]int64, m int64, n int) {
 
 func (g *RngStream) u01() float64 {
 
-	var p1, p2 int64
+	var p1, p2 float64
 	var u float64
 
 	/* Component 1 */
 	p1 = a12*(*g).cg[1] - a13n*(*g).cg[0]
 	k := int64(p1 / m1)
-	p1 -= k * m1
+	p1 -= float64(k) * m1
 
 	if p1 < 0 {
 		p1 += m1
@@ -254,7 +254,7 @@ func (g *RngStream) u01() float64 {
 	/* Component 2 */
 	p2 = a21*(*g).cg[5] - a23n*(*g).cg[3]
 	k = int64(p2 / m2)
-	p2 -= k * m2
+	p2 -= float64(k) * m2
 
 	if p2 < 0 {
 		p2 += m2
@@ -305,7 +305,7 @@ Check that the seeds are legitimate values. Returns 0 if legal seeds,
 func checkSeed(seed [6]uint64) bool {
 
 	for i := 0; i < 3; i++ {
-		if int64(seed[i]) >= m1 {
+		if float64(seed[i]) >= m1 {
 			fmt.Println("****************************************")
 			fmt.Println("ERROR: Seed is not set")
 			fmt.Println("****************************************")
@@ -314,7 +314,7 @@ func checkSeed(seed [6]uint64) bool {
 	}
 
 	for i := 3; i < 6; i++ {
-		if int64(seed[i]) >= m2 {
+		if float64(seed[i]) >= m2 {
 			fmt.Println("****************************************")
 			fmt.Println("ERROR: Seed is not set")
 			fmt.Println("****************************************")
@@ -338,6 +338,11 @@ func checkSeed(seed [6]uint64) bool {
 	return true
 }
 
+// New creates a new stream with (optional) descriptor `name`. It initializes
+// its seed Ig, and sets Bg and Cg to Ig. It also sets its `anti` and `incPrec`
+// switches to false. The seed Ig is equal to the initial seed of the
+// package if this is the first stream created; otherwise it is Z steps
+// ahead of the seed of the most recently created stream.
 func New(name string) *RngStream {
 	g := new(RngStream)
 
@@ -366,6 +371,8 @@ func New(name string) *RngStream {
 	return g
 }
 
+// ResetStartStream Reinitializes the stream to its initial state:
+// Cg and Bg are set to Ig.
 func (g *RngStream) ResetStartStream() {
 	for i := 0; i < 6; i++ {
 		g.cg[i] = g.ig[i]
@@ -373,12 +380,14 @@ func (g *RngStream) ResetStartStream() {
 	}
 }
 
+// ResetNextSubstream reinitializes the stream to the beginning of its next
+// substream: Ng is computed, and Cg and Bg are set to Ng.
 func (g *RngStream) ResetNextSubstream() {
 
-	modBgLow := [3]int64{g.bg[0], g.bg[1], g.bg[2]}
+	modBgLow := [3]float64{g.bg[0], g.bg[1], g.bg[2]}
 	matVecModM(&a1p76, &modBgLow, &modBgLow, m1)
 
-	modBgHigh := [3]int64{g.bg[3], g.bg[4], g.bg[5]}
+	modBgHigh := [3]float64{g.bg[3], g.bg[4], g.bg[5]}
 	matVecModM(&a2p76, &modBgHigh, &modBgHigh, m2)
 
 	for i := 0; i < 3; i++ {
@@ -390,45 +399,67 @@ func (g *RngStream) ResetNextSubstream() {
 	}
 }
 
+// ResetStartSubstream reinitializes the stream to the beginning
+// of its current substream: Cg is set to Bg.
 func (g *RngStream) ResetStartSubstream() {
 	for i := 0; i < 6; i++ {
 		g.cg[i] = g.bg[i]
 	}
 }
 
+// SetPackageSeed sets the initial seed s0 of the package to the six
+// integers in the vector seed. The first 3 integers in the seed must
+// all be less than m1 = 4294967087, and not all 0; and the last 3
+// integers must all be less than m2 = 4294944443, and not all 0.
+// If this method is not called, the default
+// initial seed is (12345, 12345, 12345, 12345, 12345, 12345). Returns
+// false for invalid seeds, and true otherwise.
 func SetPackageSeed(seed [6]uint64) bool {
 	if !checkSeed(seed) { // note inversion from C version
 		return false /* FAILURE */
 	}
 	for i := 0; i < 3; i++ {
-		nextSeedLow[i] = int64(seed[i])
+		nextSeedLow[i] = float64(seed[i])
 	}
 
 	for i := 0; i < 3; i++ {
-		nextSeedHigh[i] = int64(seed[i+3])
+		nextSeedHigh[i] = float64(seed[i+3])
 	}
 	return true /* SUCCESS */
 }
 
+// SetSeed sets the initial seed Ig of the stream to the vector
+// seed. The vector seed should contain valid seed values as described in
+// SetPackageSeed. The state of the stream is then reset to this initial
+// seed. The states and seeds of the other streams are not modified. As a
+// result, after calling this method, the initial seeds of the streams are
+// no longer spaced Z values apart. We discourage the use of this method;
+// proper use of the Reset* methods is preferable. Returns false for invalid
+// seeds, and true otherwise.
 func (g *RngStream) SetSeed(seed [6]uint64) bool {
 	if !checkSeed(seed) {
 		return false /* FAILURE */
 	}
 
 	for i := 0; i < 6; i++ {
-		g.cg[i] = int64(seed[i])
-		g.bg[i] = int64(seed[i])
-		g.ig[i] = int64(seed[i])
+		g.cg[i] = float64(seed[i])
+		g.bg[i] = float64(seed[i])
+		g.ig[i] = float64(seed[i])
 	}
 	return true /* SUCCESS */
 }
 
-func (g *RngStream) AdvanceState(e, c int) {
+// AdvanceState advances the state by n steps (see below for the meaning
+// of n), without modifying the states of other streams or the values of
+// Bg and Ig in the current object. If e > 0, then n = 2e + c; if e < 0,
+// then n = −2−e + c; and if e = 0, then n = c. Note: c is allowed to
+// take negative values.  We discourage the use of this method.
+func (g *RngStream) AdvanceState(e, c int64) {
 
-	var B1 = [3][3]int64{{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}
-	var C1 = [3][3]int64{{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}
-	var B2 = [3][3]int64{{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}
-	var C2 = [3][3]int64{{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}
+	var B1 = [3][3]float64{{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}
+	var C1 = [3][3]float64{{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}
+	var B2 = [3][3]float64{{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}
+	var C2 = [3][3]float64{{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}
 
 	if e > 0 {
 		matTwoPowModM(&a1p0, &B1, m1, e)
@@ -451,8 +482,8 @@ func (g *RngStream) AdvanceState(e, c int) {
 		matMatModM(&B2, &C2, &C2, m2)
 	}
 
-	var gcgLow = [3]int64{g.cg[0], g.cg[1], g.cg[2]}
-	var gcgHigh = [3]int64{g.cg[3], g.cg[4], g.cg[5]}
+	var gcgLow = [3]float64{g.cg[0], g.cg[1], g.cg[2]}
+	var gcgHigh = [3]float64{g.cg[3], g.cg[4], g.cg[5]}
 
 	matVecModM(&C1, &gcgLow, &gcgLow, m1)
 	matVecModM(&C2, &gcgHigh, &gcgHigh, m2)
@@ -462,12 +493,15 @@ func (g *RngStream) AdvanceState(e, c int) {
 	}
 }
 
+// GetState returns in seed[0..5] the current state Cg of this stream. This is
+// convenient if we want to 14 save the state for subsequent use.
 func (g *RngStream) GetState(seed []uint64) {
 	for i := 0; i < 6; i++ {
 		seed[i] = uint64(g.cg[i])
 	}
 }
 
+// WriteState writes (to standard output) the current state Cg of this stream.
 func (g *RngStream) WriteState() {
 	if g == nil {
 		return
@@ -491,6 +525,8 @@ func (g *RngStream) RngStreamStateString() string {
 	return state_str
 }
 
+// WriteStateFull writes (to standard output) the value of all the
+// internal variables of this stream: name, anti, incPrec, Ig, Bg, Cg.
 func (g *RngStream) WriteStateFull() {
 	fmt.Println(g.RngStreamFullStateString())
 }
@@ -539,14 +575,36 @@ func (g *RngStream) RngStreamFullStateString() string {
 	return state_str
 }
 
+// SetIncreasedPrecis writes to the internal incPrec variable.  After calling
+// this method with incp = true, each call to the generator (direct or
+// indirect) for this stream will return a uniform random number with
+// more bits of resolution (53 bits if machine follows IEEE 754 standard)
+// instead of 32 bits, and will advance the state of the stream by 2 steps
+// instead of 1. More precisely, if s is a stream of the class RngStream,
+// in the nonantithetic case, the instruction “u = s.RandU01()” will be
+// equivalent to “u = (s.RandU01() + s.RandU01() * fact) % 1.0” where
+// the constant fact is equal to 2−24. This also applies when calling
+// RandU01 indirectly (e.g., via RandInt, etc.). By default, or if this
+// method is called again with incp = false, each call to RandU01 for this
+// stream advances the state by 1 step and returns a number with 32 bits
+// of resolution.
 func (g *RngStream) SetIncreasedPrecis(incp bool) {
 	g.incPrec = incp
 }
 
+// SetAntitetic write the `anti` internal variable. If a = true, the stream
+// will start generating antithetic variates, i.e., 1 − U instead of U, until
+// this method is called again with a = false.
 func (g *RngStream) SetAntithetic(a bool) {
 	g.anti = a
 }
 
+// RandU01 normally returns a (pseudo)random number from the uniform
+// distribution over the interval (0, 1), after advancing the state by one
+// step. The returned number has 32 bits of precision in the sense that it is
+// always a multiple of 1/(2^32 −208). However, if IncreasedPrecis(true)
+// has been called for this stream, the state is advanced by two steps and
+// the returned number has 53 bits of precision.
 func (g *RngStream) RandU01() float64 {
 	if g.incPrec {
 		return g.u01d()
@@ -555,7 +613,9 @@ func (g *RngStream) RandU01() float64 {
 	}
 }
 
+// RandInt returns a (pseudo)random number from the discrete uniform
+// distribution over the integers {i, i + 1,...,j} Makes one call to RandU01.
 func (g *RngStream) RandInt(i int, j int) int {
 	diff := float64(j - i)
-	return i + int((diff+1.0)*g.u01())
+	return i + int((diff+1.0)*g.RandU01())
 }
