@@ -494,7 +494,7 @@ func (g *RngStream) AdvanceState(e, c int64) {
 }
 
 // GetState returns in seed[0..5] the current state Cg of this stream. This is
-// convenient if we want to 14 save the state for subsequent use.
+// convenient if we want to save the state for subsequent use.
 func (g *RngStream) GetState(seed []uint64) {
 	for i := 0; i < 6; i++ {
 		seed[i] = uint64(g.cg[i])
