@@ -5,9 +5,10 @@
 // Go translation Copyright 2023 University of Illinois Board of Trustees.
 // See LICENSE.md for details.
 
-// RngStreams is an object-oriented random-number package with many long
-// streams and substreams, based on the MRG32k3a RNG from reference [1]
-// below and proposed in [2].
+// Package rngstream is a Go implementation of RngStreams,
+// an object-oriented random-number package with many long
+// streams and substreams, based on the MRG32k3a RNG from
+// reference [1] below and proposed in [2].
 //
 // It has implementations in C, C++, Go, Java, R, OpenCL, and some other
 // languages.
@@ -42,6 +43,8 @@ import (
 	"strings"
 )
 
+// RngStream contains the (opaque) state required to completely
+// describe a single stream.
 type RngStream struct {
 	cg, bg, ig [6]float64
 	anti       bool
@@ -66,13 +69,18 @@ const fact float64 = 5.9604644775390625e-8 /* 1 / 2^24 */
 var nextSeedLow = [3]float64{12345, 12345, 12345}
 var nextSeedHigh = [3]float64{12345, 12345, 12345}
 
-func SetRngStreamMasterSeed(seed float64) {
-	nextSeedLow[0] = seed
-	nextSeedLow[1] = seed + 1
-	nextSeedLow[2] = seed + 2
-	nextSeedHigh[0] = seed + 3
-	nextSeedHigh[1] = seed + 4
-	nextSeedHigh[2] = seed + 5
+// SetRngStreamMasterSeed sets the initial seed s0 of the package
+// to the six successive integers starting with `seed`.
+// Seed must be less than 4294944443-6.
+//
+// See also [SetPackageSeed].
+func SetRngStreamMasterSeed(seed uint64) {
+	nextSeedLow[0] = float64(seed)
+	nextSeedLow[1] = float64(seed + 1)
+	nextSeedLow[2] = float64(seed + 2)
+	nextSeedHigh[0] = float64(seed + 3)
+	nextSeedHigh[1] = float64(seed + 4)
+	nextSeedHigh[2] = float64(seed + 5)
 }
 
 // The following are the transition matrices of the two MRG components
@@ -146,10 +154,9 @@ func multModM(a, s, c, m float64) float64 {
 
 	v = v - float64(a1)*m
 	if v < 0 {
-		return v + m
-	} else {
-		return v
+		v = v + m
 	}
+	return v
 }
 
 // Returns v = A*s % m.  Assumes that -m < s[i] < m.
@@ -283,18 +290,15 @@ func (g *RngStream) u01d() float64 {
 		u += g.u01() * fact
 		if u < 1.0 {
 			return u
-		} else {
-			return u - 1.0
 		}
-	} else {
-		/* Don't forget that u01() returns 1 - u in the antithetic case */
-		u += (g.u01() - 1.0) * fact
-		if u < 0.0 {
-			return u + 1.0
-		} else {
-			return u
-		}
+		return u - 1.0
+	} 
+	/* Don't forget that u01() returns 1 - u in the antithetic case */
+	u += (g.u01() - 1.0) * fact
+	if u < 0.0 {
+		return u + 1.0
 	}
+	return u
 }
 
 /*
@@ -414,6 +418,8 @@ func (g *RngStream) ResetStartSubstream() {
 // If this method is not called, the default
 // initial seed is (12345, 12345, 12345, 12345, 12345, 12345). Returns
 // false for invalid seeds, and true otherwise.
+//
+// See also [SetRngStreamMasterSeed]
 func SetPackageSeed(seed [6]uint64) bool {
 	if !checkSeed(seed) { // note inversion from C version
 		return false /* FAILURE */
@@ -506,73 +512,73 @@ func (g *RngStream) WriteState() {
 	if g == nil {
 		return
 	}
-	fmt.Println(g.RngStreamStateString())
+	fmt.Println(g.rngStreamStateString())
 }
 
-func (g *RngStream) RngStreamStateString() string {
+func (g *RngStream) rngStreamStateString() string {
 
-	state_str := ""
+	stateStr := ""
 	if len(g.name) > 0 {
-		state_str += (" " + g.name)
+		stateStr += (" " + g.name)
 	}
-	state_str += (":\n  Cg = {")
-	vec_str := make([]string, 6)
+	stateStr += (":\n  Cg = {")
+	vecStr := make([]string, 6)
 	for i := 0; i < 6; i++ {
-		vec_str[i] = strconv.FormatUint(uint64(g.cg[i]), 10)
+		vecStr[i] = strconv.FormatUint(uint64(g.cg[i]), 10)
 	}
-	state_str += strings.Join(vec_str, ",")
-	state_str += " }\n"
-	return state_str
+	stateStr += strings.Join(vecStr, ",")
+	stateStr += " }\n"
+	return stateStr
 }
 
 // WriteStateFull writes (to standard output) the value of all the
 // internal variables of this stream: name, anti, incPrec, Ig, Bg, Cg.
 func (g *RngStream) WriteStateFull() {
-	fmt.Println(g.RngStreamFullStateString())
+	fmt.Println(g.rngStreamFullStateString())
 }
 
-func (g *RngStream) RngStreamFullStateString() string {
+func (g *RngStream) rngStreamFullStateString() string {
 	if g == nil {
 		return ""
 	}
-	state_str := ""
-	//state_str := "The RngStream"
+	stateStr := ""
+	//stateStr := "The RngStream"
 	if len(g.name) > 0 {
-		state_str += g.name
+		stateStr += g.name
 	}
-	state_str += ":\n  Anti = "
+	stateStr += ":\n  Anti = "
 	if g.anti {
-		state_str += "true\n"
+		stateStr += "true\n"
 	} else {
-		state_str += "false\n"
+		stateStr += "false\n"
 	}
-	state_str += "    IncPrec = "
+	stateStr += "    IncPrec = "
 
 	if g.incPrec {
-		state_str += "true\n"
+		stateStr += "true\n"
 	} else {
-		state_str += "false\n"
+		stateStr += "false\n"
 	}
-	state_str += "    Ig = { "
-	vec_str := make([]string, 6)
+	stateStr += "    Ig = { "
+	vecStr := make([]string, 6)
 	for i := 0; i < 6; i++ {
-		vec_str[i] = strconv.FormatUint(uint64(g.ig[i]), 10)
+		vecStr[i] = strconv.FormatUint(uint64(g.ig[i]), 10)
 	}
-	state_str += strings.Join(vec_str, ",")
-	state_str += " }\n  Bg = { "
+	stateStr += strings.Join(vecStr, ",")
+	stateStr += " }\n  Bg = { "
 
 	for i := 0; i < 6; i++ {
-		vec_str[i] = strconv.FormatUint(uint64(g.bg[i]), 10)
+		vecStr[i] = strconv.FormatUint(uint64(g.bg[i]), 10)
 	}
-	state_str += strings.Join(vec_str, ",")
-	state_str += " }\n  Cg = { "
+	stateStr += strings.Join(vecStr, ",")
+	stateStr += " }\n  Cg = { "
 	for i := 0; i < 6; i++ {
-		vec_str[i] = strconv.FormatUint(uint64(g.bg[i]), 10)
+		vecStr[i] = strconv.FormatUint(uint64(g.bg[i]), 10)
 	}
-	state_str += strings.Join(vec_str, ",")
-	state_str += "}\n"
-	//fmt.Println(state_str)
-	return state_str
+	stateStr += strings.Join(vecStr, ",")
+	stateStr += "}\n"
+	//fmt.Println(stateStr)
+	return stateStr
 }
 
 // SetIncreasedPrecis writes to the internal incPrec variable.  After calling
@@ -592,7 +598,7 @@ func (g *RngStream) SetIncreasedPrecis(incp bool) {
 	g.incPrec = incp
 }
 
-// SetAntitetic write the `anti` internal variable. If a = true, the stream
+// SetAntithetic write the `anti` internal variable. If a = true, the stream
 // will start generating antithetic variates, i.e., 1 − U instead of U, until
 // this method is called again with a = false.
 func (g *RngStream) SetAntithetic(a bool) {
@@ -608,9 +614,8 @@ func (g *RngStream) SetAntithetic(a bool) {
 func (g *RngStream) RandU01() float64 {
 	if g.incPrec {
 		return g.u01d()
-	} else {
-		return g.u01()
 	}
+	return g.u01()
 }
 
 // RandInt returns a (pseudo)random number from the discrete uniform

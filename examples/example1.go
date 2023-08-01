@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	NS = 1000000
+	nStreams = 1000000
 )
 
 func main() {
@@ -52,9 +52,9 @@ func main() {
 		_ = (*g2).RandU01()
 	}
 
-	/* Create NS = 1000000 parallel streams */
-	gar := make([]*rngstream.RngStream, NS)
-	for i := 0; i < NS; i++ {
+	/* Create nStreams = 1000000 parallel streams */
+	gar := make([]*rngstream.RngStream, nStreams)
+	for i := 0; i < nStreams; i++ {
 		gar[i] = rngstream.New("")
 	}
 
