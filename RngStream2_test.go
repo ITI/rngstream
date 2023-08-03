@@ -10,9 +10,9 @@ import (
 
 func Test2(t *testing.T) {
 	SetPackageSeed([6]uint64{12345, 12345, 12345, 12345, 12345, 12345})
-	var sum float64 = 0.0
-	var sum3 float64 = 0.0
-	var sumi int = 0
+	var sum = 0.0
+	var sum3 = 0.0
+	var sumi = 0
 	var i int
 
 	var gar [4]*RngStream

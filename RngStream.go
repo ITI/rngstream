@@ -285,14 +285,14 @@ func (g *RngStream) u01() float64 {
 }
 
 func (g *RngStream) u01d() float64 {
-	var u float64 = g.u01()
+	var u = g.u01()
 	if !g.anti {
 		u += g.u01() * fact
 		if u < 1.0 {
 			return u
 		}
 		return u - 1.0
-	} 
+	}
 	/* Don't forget that u01() returns 1 - u in the antithetic case */
 	u += (g.u01() - 1.0) * fact
 	if u < 0.0 {
