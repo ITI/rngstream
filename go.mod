@@ -1,3 +1,3 @@
-module github.com/illinoisrobert/rngstream
+module github.com/iti/rngstream
 
 go 1.18

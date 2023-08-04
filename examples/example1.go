@@ -8,7 +8,7 @@ package main
 
 import (
 	_ "fmt"
-	"github.com/illinoisrobert/rngstream"
+	"github.com/iti/rngstream"
 )
 
 const (

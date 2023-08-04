@@ -1,8 +1,8 @@
 # RngStream
 
 
-[![Report Card](https://goreportcard.com/badge/github.com/illinoisrobert/rngstream)](https://goreportcard.com/report/github.com/illinoisrobert/rngstream) 
-[![Go Reference](https://pkg.go.dev/badge/github.com/illinoisrobert/rngstream.svg)](https://pkg.go.dev/github.com/illinoisrobert/rngstream)
+[![Report Card](https://goreportcard.com/badge/github.com/iti/rngstream)](https://goreportcard.com/report/github.com/iti/rngstream) 
+[![Go Reference](https://pkg.go.dev/badge/github.com/iti/rngstream.svg)](https://pkg.go.dev/github.com/iti/rngstream)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 
