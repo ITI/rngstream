@@ -9,7 +9,7 @@ import (
 // Compute (a*s + c) % m. m must be < 2^35.  Works also for s, c < 0
 // func multModM(a, s, c, m int64) int64 {
 func TestMultModM(t *testing.T) {
-	SetPackageSeed([6]uint64{12345, 12345, 12345, 12345, 12345, 12345})
+	SetPackageSeed([]uint64{12345, 12345, 12345, 12345, 12345, 12345})
 	got := multModM(3, 5, 11, 7)
 	want := float64((3*5 + 11) % 7)
 	fmt.Printf("TestMultModM: got %v; expected %v\n", got, want)
@@ -19,12 +19,12 @@ func TestMultModM(t *testing.T) {
 }
 
 func Test1(t *testing.T) {
-	SetPackageSeed([6]uint64{12345, 12345, 12345, 12345, 12345, 12345})
+	SetPackageSeed([]uint64{12345, 12345, 12345, 12345, 12345, 12345})
 	var sum = 0.0
 	var sum3 = 0.0
 	var sumi = 0
 
-	germe := [6]uint64{1, 1, 1, 1, 1, 1}
+	germe := []uint64{1, 1, 1, 1, 1, 1}
 
 	g1 := New("g1")
 	g2 := New("g2")

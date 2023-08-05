@@ -66,8 +66,7 @@ const fact float64 = 5.9604644775390625e-8 /* 1 / 2^24 */
 
 // Default initial seed of the package. Will be updated to become
 // the seed of the next created stream. */
-var nextSeedLow = [3]float64{12345, 12345, 12345}
-var nextSeedHigh = [3]float64{12345, 12345, 12345}
+var nextSeed = [6]float64{12345, 12345, 12345, 12345, 12345, 12345}
 
 // SetRngStreamMasterSeed sets the initial seed s0 of the package
 // to the six successive integers starting with `seed`.
@@ -75,12 +74,9 @@ var nextSeedHigh = [3]float64{12345, 12345, 12345}
 //
 // See also [SetPackageSeed].
 func SetRngStreamMasterSeed(seed uint64) {
-	nextSeedLow[0] = float64(seed)
-	nextSeedLow[1] = float64(seed + 1)
-	nextSeedLow[2] = float64(seed + 2)
-	nextSeedHigh[0] = float64(seed + 3)
-	nextSeedHigh[1] = float64(seed + 4)
-	nextSeedHigh[2] = float64(seed + 5)
+	for i := 0; i < 6; i++ {
+		nextSeed[i] = float64(seed + uint64(i))
+	}
 }
 
 // The following are the transition matrices of the two MRG components
@@ -161,23 +157,21 @@ func multModM(a, s, c, m float64) float64 {
 
 // Returns v = A*s % m.  Assumes that -m < s[i] < m.
 // Works even if v = s.
-func matVecModM(A *[3][3]float64, s *[3]float64, v *[3]float64, m float64) {
+func matVecModM(A *[3][3]float64, s []float64, v []float64, m float64) {
 	var x [3]float64
 	for i := 0; i < 3; i++ {
-		x[i] = multModM((*A)[i][0], (*s)[0], 0, m)
-		x[i] = multModM((*A)[i][1], (*s)[1], x[i], m)
-		x[i] = multModM((*A)[i][2], (*s)[2], x[i], m)
+		x[i] = multModM((*A)[i][0], s[0], 0, m)
+		x[i] = multModM((*A)[i][1], s[1], x[i], m)
+		x[i] = multModM((*A)[i][2], s[2], x[i], m)
 	}
 
-	for i := 0; i < 3; i++ {
-		(*v)[i] = x[i]
-	}
+	copy(v, x[:])
 }
 
 /* Returns C = A*B % m. Work even if A = C or B = C or A = B = C. */
 func matMatModM(A *[3][3]float64, B *[3][3]float64, C *[3][3]float64, m float64) {
 	/* Returns C = A*B % m. Work even if A = C or B = C or A = B = C. */
-	var V = [3]float64{0, 0, 0}
+	var V = []float64{0, 0, 0}
 
 	var W = [3][3]float64{{0, 0, 0}, {0, 0, 0}, {0, 0, 0}}
 
@@ -185,7 +179,7 @@ func matMatModM(A *[3][3]float64, B *[3][3]float64, C *[3][3]float64, m float64)
 		for j := 0; j < 3; j++ {
 			V[j] = (*B)[j][i]
 		}
-		matVecModM(A, &V, &V, m)
+		matVecModM(A, V, V, m)
 		for j := 0; j < 3; j++ {
 			W[j][i] = V[j]
 		}
@@ -306,7 +300,10 @@ Check that the seeds are legitimate values. Returns 0 if legal seeds,
 
 	-1 otherwise
 */
-func checkSeed(seed [6]uint64) bool {
+func checkSeed(seed []uint64) bool {
+	if len(seed) != 6 {
+		return false
+	}
 
 	for i := 0; i < 3; i++ {
 		if float64(seed[i]) >= m1 {
@@ -358,57 +355,35 @@ func New(name string) *RngStream {
 	g.anti = false
 	g.incPrec = false
 
-	for i := 0; i < 3; i++ {
-		g.bg[i] = nextSeedLow[i]
-		g.cg[i] = nextSeedLow[i]
-		g.ig[i] = nextSeedLow[i]
-	}
+	g.bg = nextSeed
+	g.cg = nextSeed
+	g.ig = nextSeed
 
-	for i := 3; i < 6; i++ {
-		g.bg[i] = nextSeedHigh[i-3]
-		g.cg[i] = nextSeedHigh[i-3]
-		g.ig[i] = nextSeedHigh[i-3]
-	}
-
-	matVecModM(&a1p127, &nextSeedLow, &nextSeedLow, m1)
-	matVecModM(&a2p127, &nextSeedHigh, &nextSeedHigh, m2)
+	matVecModM(&a1p127, nextSeed[:3], nextSeed[:3], m1)
+	matVecModM(&a2p127, nextSeed[3:], nextSeed[3:], m2)
 	return g
 }
 
 // ResetStartStream Reinitializes the stream to its initial state:
 // Cg and Bg are set to Ig.
 func (g *RngStream) ResetStartStream() {
-	for i := 0; i < 6; i++ {
-		g.cg[i] = g.ig[i]
-		g.bg[i] = g.ig[i]
-	}
+	g.cg = g.ig
+	g.bg = g.ig
 }
 
 // ResetNextSubstream reinitializes the stream to the beginning of its next
 // substream: Ng is computed, and Cg and Bg are set to Ng.
 func (g *RngStream) ResetNextSubstream() {
 
-	modBgLow := [3]float64{g.bg[0], g.bg[1], g.bg[2]}
-	matVecModM(&a1p76, &modBgLow, &modBgLow, m1)
-
-	modBgHigh := [3]float64{g.bg[3], g.bg[4], g.bg[5]}
-	matVecModM(&a2p76, &modBgHigh, &modBgHigh, m2)
-
-	for i := 0; i < 3; i++ {
-		g.bg[i] = modBgLow[i]
-		g.bg[i+3] = modBgHigh[i]
-	}
-	for i := 0; i < 6; i++ {
-		g.cg[i] = g.bg[i]
-	}
+	matVecModM(&a1p76, g.bg[:3], g.bg[:3], m1)
+	matVecModM(&a2p76, g.bg[3:], g.bg[3:], m2)
+	g.cg = g.bg
 }
 
 // ResetStartSubstream reinitializes the stream to the beginning
 // of its current substream: Cg is set to Bg.
 func (g *RngStream) ResetStartSubstream() {
-	for i := 0; i < 6; i++ {
-		g.cg[i] = g.bg[i]
-	}
+	g.cg = g.bg
 }
 
 // SetPackageSeed sets the initial seed s0 of the package to the six
@@ -420,16 +395,12 @@ func (g *RngStream) ResetStartSubstream() {
 // false for invalid seeds, and true otherwise.
 //
 // See also [SetRngStreamMasterSeed]
-func SetPackageSeed(seed [6]uint64) bool {
+func SetPackageSeed(seed []uint64) bool {
 	if !checkSeed(seed) { // note inversion from C version
 		return false /* FAILURE */
 	}
-	for i := 0; i < 3; i++ {
-		nextSeedLow[i] = float64(seed[i])
-	}
-
-	for i := 0; i < 3; i++ {
-		nextSeedHigh[i] = float64(seed[i+3])
+	for i := 0; i < 6; i++ {
+		nextSeed[i] = float64(seed[i])
 	}
 	return true /* SUCCESS */
 }
@@ -442,7 +413,7 @@ func SetPackageSeed(seed [6]uint64) bool {
 // no longer spaced Z values apart. We discourage the use of this method;
 // proper use of the Reset* methods is preferable. Returns false for invalid
 // seeds, and true otherwise.
-func (g *RngStream) SetSeed(seed [6]uint64) bool {
+func (g *RngStream) SetSeed(seed []uint64) bool {
 	if !checkSeed(seed) {
 		return false /* FAILURE */
 	}
@@ -488,23 +459,18 @@ func (g *RngStream) AdvanceState(e, c int64) {
 		matMatModM(&B2, &C2, &C2, m2)
 	}
 
-	var gcgLow = [3]float64{g.cg[0], g.cg[1], g.cg[2]}
-	var gcgHigh = [3]float64{g.cg[3], g.cg[4], g.cg[5]}
-
-	matVecModM(&C1, &gcgLow, &gcgLow, m1)
-	matVecModM(&C2, &gcgHigh, &gcgHigh, m2)
-	for i := 0; i < 3; i++ {
-		g.cg[i] = gcgLow[i]
-		g.cg[i+3] = gcgHigh[i]
-	}
+	matVecModM(&C1, g.cg[:3], g.cg[:3], m1)
+	matVecModM(&C2, g.cg[3:], g.cg[3:], m2)
 }
 
-// GetState returns in seed[0..5] the current state Cg of this stream. This is
+// GetState returns the current state Cg of this stream. This is
 // convenient if we want to save the state for subsequent use.
-func (g *RngStream) GetState(seed []uint64) {
+func (g *RngStream) GetState() []uint64 {
+	ret := [6]uint64{}
 	for i := 0; i < 6; i++ {
-		seed[i] = uint64(g.cg[i])
+		ret[i] = uint64(g.cg[i])
 	}
+	return ret[:]
 }
 
 // WriteState writes (to standard output) the current state Cg of this stream.
