@@ -5,7 +5,6 @@
 [![Go Reference](https://pkg.go.dev/badge/github.com/iti/rngstream.svg)](https://pkg.go.dev/github.com/iti/rngstream)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-
 Package rngstream is an object-oriented random-number package
 with many long streams and substreams, based on the
 MRG32k3a RNG from reference [1] below and proposed in [2].

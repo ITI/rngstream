@@ -17,7 +17,7 @@ func ExampleNew() {
 	// Create a random number generator
 	g := rngstream.New("g")
 
-	// Fetch some psuedo-random numbers
+	// Fetch some pseudo-random numbers
 	f1 := g.RandU01()
 	f2 := g.RandU01()
 
@@ -32,7 +32,7 @@ func ExampleRngStream_RandU01() {
 	// Create a random number generator
 	g := rngstream.New("g")
 
-	// Fetch some psuedo-random numbers
+	// Fetch some pseudo-random numbers
 	f1 := g.RandU01()
 	f2 := g.RandU01()
 
@@ -48,7 +48,7 @@ func ExampleNew_double() {
 	g1 := rngstream.New("g1")
 	g2 := rngstream.New("g2")
 
-	// Fetch some psuedo-random numbers
+	// Fetch some pseudo-random numbers
 	f1_1 := g1.RandU01()
 	f1_2 := g1.RandU01()
 	f2_1 := g2.RandU01()

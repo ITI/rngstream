@@ -34,9 +34,11 @@ tidy:
 	go mod tidy -v
 
 ## audit: run quality control checks
+AUDITS=lint misspell verify format vet ineffassign staticcheck race metalint
+# vulncheck is commented out until we switch to 1.20.5
+
 .PHONY: audit
-# audit/vulncheck commented out until switch to 1.20.5 is complete.
-audit: audit/lint audit/verify audit/format audit/vet audit/ineffassign audit/staticcheck audit/race
+audit: $(foreach audit,$(AUDITS),audit/$(audit))
 
 audit/verify:
 	go mod verify
@@ -60,7 +62,14 @@ audit/race:
 	go test -race -buildvcs -vet=off ./...
 
 audit/lint:
-	go run golang.org/x/lint/golint@latest -set_exit_status ./...
+	go run github.com/mgechev/revive@latest -set_exit_status ./...
+
+audit/misspell:
+	go run github.com/client9/misspell/cmd/misspell@latest -error .
+
+audit/metalint:
+	go run github.com/golangci/golangci-lint/cmd/golangci-lint@v1.53 \
+		run -E misspell --exclude-use-default=0 -E revive
 
 
 # ========================================================================== #

@@ -4,6 +4,7 @@
 // See LICENSE.md for details.
 // SPDX-License-Identifier: MIT
 
+// Example code.
 package main
 
 import (
