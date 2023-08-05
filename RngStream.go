@@ -295,11 +295,8 @@ func (g *RngStream) u01d() float64 {
 	return u
 }
 
-/*
-Check that the seeds are legitimate values. Returns 0 if legal seeds,
-
-	-1 otherwise
-*/
+// Check that the seeds are legitimate values. Returns true if
+// legal seeds, false otherwise
 func checkSeed(seed []uint64) bool {
 	if len(seed) != 6 {
 		return false
@@ -428,8 +425,8 @@ func (g *RngStream) SetSeed(seed []uint64) bool {
 
 // AdvanceState advances the state by n steps (see below for the meaning
 // of n), without modifying the states of other streams or the values of
-// Bg and Ig in the current object. If e > 0, then n = 2e + c; if e < 0,
-// then n = −2−e + c; and if e = 0, then n = c. Note: c is allowed to
+// Bg and Ig in the current object. If e > 0, then n = 2**e + c; if e < 0,
+// then n = −2**−e + c; and if e = 0, then n = c. Note: c is allowed to
 // take negative values.  We discourage the use of this method.
 func (g *RngStream) AdvanceState(e, c int64) {
 
