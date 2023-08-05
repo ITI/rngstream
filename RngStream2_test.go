@@ -9,14 +9,14 @@ import (
 )
 
 func Test2(t *testing.T) {
-	SetPackageSeed([6]uint64{12345, 12345, 12345, 12345, 12345, 12345})
+	SetPackageSeed([]uint64{12345, 12345, 12345, 12345, 12345, 12345})
 	var sum = 0.0
 	var sum3 = 0.0
 	var sumi = 0
 	var i int
 
 	var gar [4]*RngStream
-	germe := [6]uint64{1, 1, 1, 1, 1, 1}
+	germe := []uint64{1, 1, 1, 1, 1, 1}
 
 	g1 := New("g1")
 	g2 := New("g2")
