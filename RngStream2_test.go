@@ -10,9 +10,6 @@ import (
 
 func Test2(t *testing.T) {
 	SetPackageSeed([]uint64{12345, 12345, 12345, 12345, 12345, 12345})
-	var sum = 0.0
-	var sum3 = 0.0
-	var sumi = 0
 	var i int
 
 	var gar [4]*RngStream
@@ -26,7 +23,7 @@ func Test2(t *testing.T) {
 	g1.WriteState()
 	g2.WriteState()
 	g3.WriteState()
-	sum = g2.RandU01() + g3.RandU01()
+	sum := g2.RandU01() + g3.RandU01()
 	for i = 0; i < 12345; i++ {
 		g2.RandU01()
 	}
@@ -45,6 +42,7 @@ func Test2(t *testing.T) {
 	fmt.Printf("RandU01 (g1) = %12.8f\n\n", g1.RandU01())
 
 	g1.ResetStartStream()
+	sumi := 0
 	for i = 0; i < 35; i++ {
 		sumi += g1.RandInt(1, 10)
 	}
@@ -54,7 +52,6 @@ func Test2(t *testing.T) {
 	sum += float64(sumi) / 100.0
 	fmt.Printf("RandU01 (g1) = %12.8f\n\n", g1.RandU01())
 
-	sum3 = 0.0
 	g1.ResetStartStream()
 	g1.SetIncreasedPrecis(true)
 	sumi = 0
@@ -69,7 +66,7 @@ func Test2(t *testing.T) {
 	g1.RandInt(1, 10)
 	fmt.Printf("State of g1 after IncreasedPrecis (0) and 1 call to RandInt\n")
 	g1.WriteState()
-	sum3 = float64(sumi) / 10.0
+	sum3 := float64(sumi) / 10.0
 
 	g1.ResetStartStream()
 	g1.SetIncreasedPrecis(true)

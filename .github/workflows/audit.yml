@@ -29,6 +29,9 @@ jobs:
     - name: Run go vet
       run: make audit/vet
 
+    - name: Detect ineffectual assignments
+      run: make ineffassign
+
     - name: Run staticcheck
       run: make audit/staticcheck
 

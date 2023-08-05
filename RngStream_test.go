@@ -20,9 +20,6 @@ func TestMultModM(t *testing.T) {
 
 func Test1(t *testing.T) {
 	SetPackageSeed([]uint64{12345, 12345, 12345, 12345, 12345, 12345})
-	var sum = 0.0
-	var sum3 = 0.0
-	var sumi = 0
 
 	germe := []uint64{1, 1, 1, 1, 1, 1}
 
@@ -30,7 +27,7 @@ func Test1(t *testing.T) {
 	g2 := New("g2")
 	g3 := New("g3")
 
-	sum = g2.RandU01() + g3.RandU01()
+	sum := g2.RandU01() + g3.RandU01()
 
 	g1.AdvanceState(5, 3)
 	sum += g1.RandU01()
@@ -42,13 +39,13 @@ func Test1(t *testing.T) {
 	sum += g1.RandU01()
 
 	g1.ResetStartStream()
-	sumi = 0
+	sumi := 0
 	for i := 0; i < 35; i++ {
 		sumi += g1.RandInt(1, 10)
 	}
 	sum += float64(sumi) / 100.0
 
-	sum3 = 0.0
+	sum3 := 0.0
 	for i := 0; i < 100; i++ {
 		sum3 += g3.RandU01()
 	}

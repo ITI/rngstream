@@ -36,7 +36,7 @@ tidy:
 ## audit: run quality control checks
 .PHONY: audit
 # audit/vulncheck commented out until switch to 1.20.5 is complete.
-audit: audit/lint audit/verify audit/format audit/vet audit/staticcheck audit/race
+audit: audit/lint audit/verify audit/format audit/vet audit/ineffassign audit/staticcheck audit/race
 
 audit/verify:
 	go mod verify
@@ -46,6 +46,9 @@ audit/format:
 
 audit/vet:
 	go vet ./...
+
+audit/ineffassign:
+	go run github.com/gordonklaus/ineffassign@latest ./...
 
 audit/staticcheck:
 	go run honnef.co/go/tools/cmd/staticcheck@latest -checks=all,-ST1000,-U1000 ./...
