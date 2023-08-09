@@ -4,6 +4,7 @@ on:
     branches:
       - master
       - main
+      - robadams-fix-ci
   pull_request:
 
 permissions:
