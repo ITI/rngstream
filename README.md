@@ -1,9 +1,9 @@
 # RngStream
 
-
 [![Report Card](https://goreportcard.com/badge/github.com/iti/rngstream)](https://goreportcard.com/report/github.com/iti/rngstream) 
-[![Go Reference](https://pkg.go.dev/badge/github.com/iti/rngstream.svg)](https://pkg.go.dev/github.com/iti/rngstream)
+[![Go Reference](https://pkg.go.dev/badge/github.com/iti/rngstream.svg)](https://pkg.go.dev/github.com/iti/rngstream) 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+![Coverage](https://img.shields.io/badge/Coverage-86.9%25-brightgreen)
 
 Package rngstream is an object-oriented random-number package
 with many long streams and substreams, based on the
